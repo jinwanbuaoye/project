@@ -1,0 +1,342 @@
+给定一个含有 n 个正整数的数组和一个正整数 target 。
+
+找出该数组中满足其总和大于等于 target 的长度最小的 子数组 [numsl, numsl+1, ..., numsr-1, numsr] ，并返回其长度。如果不存在符合条件的子数组，返回 0 。
+
+示例 1：
+
+输入：target = 7, nums = [2,3,1,2,4,3]
+输出：2
+解释：子数组 [4,3] 是该条件下的长度最小的子数组。
+
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int n = nums.length, sum = 0, len = Integer.MAX_VALUE;
+        for(int left = 0,right = 0; right < n; right++){
+            sum+=nums[right];
+            while(sum >= target){
+                len = Math.min(len,right - left + 1);
+                sum -= nums[left++];
+            }
+        }
+        return len == Integer.MAX_VALUE ? 0 : len;
+    }
+}
+--------------------------------------------------------------------------------------------------------
+
+给定一个字符串 s ，请你找出其中不含有重复字符的 最长 子串 的长度。
+
+ 
+
+示例 1:
+
+输入: s = "abcabcbb"
+输出: 3 
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+
+class Solution {
+    public int lengthOfLongestSubstring(String ss) {
+        char[] s = ss.toCharArray();
+
+        int[] hash = new int[128];//模拟哈希表
+        int left = 0, right = 0, n = ss.length();
+        int ret = 0;
+        while(right < n){
+            hash[s[right]]++;
+            while(hash[s[right]] > 1){
+                hash[s[left++]]--;
+            }  
+                ret = Math.max(ret,right-left+1);
+                right++;
+            
+        }
+
+        return ret;
+    }
+}
+----------------------------------------------------------------------------------------------------------------------------
+给定一个二进制数组 nums 和一个整数 k，假设最多可以翻转 k 个 0 ，则返回执行操作后 数组中连续 1 的最大个数 。
+
+ 
+
+示例 1：
+
+输入：nums = [1,1,1,0,0,0,1,1,1,1,0], K = 2
+输出：6
+解释：[1,1,1,0,0,1,1,1,1,1,1]
+粗体数字从 0 翻转到 1，最长的子数组长度为 6。
+
+class Solution {
+    public int longestOnes(int[] nums, int k) {
+        int ret =0;
+        for(int left=0,right=0,zero=0;right < nums.length;right++){
+            if(nums[right] == 0){
+                zero++;
+            }
+            while(zero>k){
+                if(nums[left++]==0){
+                    zero--;
+                    
+                }
+            }
+             ret = Math.max(ret, right - left + 1);
+             
+        }
+       return ret;
+    }
+}
+
+---------------------------------------------------------------------------------------------
+给你一个整数数组 nums 和一个整数 x 。每一次操作时，你应当移除数组 nums 最左边或最右边的元素，然后从 x 中减去该元素的值。请注意，需要 修改 数组以供接下来的操作使用。
+
+如果可以将 x 恰好 减到 0 ，返回 最小操作数 ；否则，返回 -1 。
+
+ 
+
+示例 1：
+
+输入：nums = [1,1,4,2,3], x = 5
+输出：2
+解释：最佳解决方案是移除后两个元素，将 x 减到 0 。
+
+class Solution {
+    public int minOperations(int[] nums, int x) {
+        int sum = 0;
+        for (int a : nums)
+            sum += a;
+        int target = sum - x;
+        if (target < 0)
+            return -1;
+        int ret = -1;
+        for (int left = 0, right = 0, tmp = 0; right < nums.length; right++) {
+            tmp += nums[right];
+            while (tmp > target) {
+                tmp -= nums[left++];
+            }
+            if (tmp == target) {
+                ret = Math.max(ret, right - left + 1);
+            }
+        }
+        if (ret == -1)
+            return -1;
+        else
+            return nums.length - ret;
+    }
+}
+
+--------------------------------------------------------------------------------------------
+你正在探访一家农场，农场从左到右种植了一排果树。这些树用一个整数数组 fruits 表示，其中 fruits[i] 是第 i 棵树上的水果 种类 。
+
+你想要尽可能多地收集水果。然而，农场的主人设定了一些严格的规矩，你必须按照要求采摘水果：
+
+你只有 两个 篮子，并且每个篮子只能装 单一类型 的水果。每个篮子能够装的水果总量没有限制。
+你可以选择任意一棵树开始采摘，你必须从 每棵 树（包括开始采摘的树）上 恰好摘一个水果 。采摘的水果应当符合篮子中的水果类型。每采摘一次，你将会向右移动到下一棵树，并继续采摘。
+一旦你走到某棵树前，但水果不符合篮子的水果类型，那么就必须停止采摘。
+给你一个整数数组 fruits ，返回你可以收集的水果的 最大 数目。
+
+ 
+
+示例 1：
+
+输入：fruits = [1,2,1]
+输出：3
+解释：可以采摘全部 3 棵树。
+
+class Solution {
+    public int totalFruit(int[] f) {
+        int n = f.length;
+        int[] hash = new int[n + 1]; // 统计窗⼝内⽔果的种类
+
+        int ret = 0;
+        for (int left = 0, right = 0, kinds = 0; right < n; right++) {
+            int in = f[right];
+            if (hash[in] == 0)
+                kinds++; // 维护⽔果种类
+            hash[in]++; // 进窗⼝
+            while (kinds > 2) // 判断
+            {
+                int out = f[left];
+                hash[out]--; // 出窗⼝
+                if (hash[out] == 0)
+                    kinds--;
+                left++;
+            }
+            // 更新结果
+            ret = Math.max(ret, right - left + 1);
+        }
+        return ret;
+    }
+}
+
+------------------------------------------------------------------------------------------------------------
+给定两个字符串 s 和 p，找到 s 中所有 p 的 异位词 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+
+ 
+
+示例 1:
+
+输入: s = "cbaebabacd", p = "abc"
+输出: [0,6]
+解释:
+起始索引等于 0 的子串是 "cba", 它是 "abc" 的异位词。
+起始索引等于 6 的子串是 "bac", 它是 "abc" 的异位词。
+
+class Solution {
+    public List<Integer> findAnagrams(String ss, String pp) {
+        List<Integer> ret = new ArrayList<Integer>();
+        char[] s = ss.toCharArray();
+        char[] p = pp.toCharArray();
+
+        int[] hash1 = new int[26];
+        for(char ch:p){
+            hash1[ch-'a']++;
+        }
+
+        int[] hash2 = new int[26];
+        int m = p.length;
+
+        for(int left = 0,right = 0,count = 0;right < s.length;right++){
+            //进窗口
+            char in = s[right];
+            hash2[in-'a']++;
+
+            //判断有效count
+            if(hash2[in-'a'] <= hash1[in-'a']){
+                count++;
+            }
+
+            //判断出窗口
+            if(right-left+1 > m){
+                char out = s[left++];
+                if(hash2[out-'a']-- <= hash1[out-'a']){
+                    count--;
+                }
+            }
+
+            if(count == m){
+                ret.add(left);
+            }
+        }
+
+        return ret;
+    }
+}
+
+-------------------------------------------------------------------------------------------------------------
+给定一个字符串 s 和一个字符串数组 words。 words 中所有字符串 长度相同。
+
+ s 中的 串联子串 是指一个包含  words 中所有字符串以任意顺序排列连接起来的子串。
+
+例如，如果 words = ["ab","cd","ef"]， 那么 "abcdef"， "abefcd"，"cdabef"， "cdefab"，"efabcd"， 和 "efcdab" 都是串联子串。 "acdbef" 不是串联子串，因为他不是任何 words 排列的连接。
+返回所有串联子串在 s 中的开始索引。你可以以 任意顺序 返回答案。
+
+ 
+
+示例 1：
+
+输入：s = "barfoothefoobarman", words = ["foo","bar"]
+输出：[0,9]
+解释：因为 words.length == 2 同时 words[i].length == 3，连接的子字符串的长度必须为 6。
+子串 "barfoo" 开始位置是 0。它是 words 中以 ["bar","foo"] 顺序排列的连接。
+子串 "foobar" 开始位置是 9。它是 words 中以 ["foo","bar"] 顺序排列的连接。
+输出顺序无关紧要。返回 [9,0] 也是可以的。
+
+
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        List<Integer> ret = new ArrayList<Integer>();
+
+        Map<String,Integer> hash1 = new HashMap<String,Integer>();
+        for(String str : words){
+            hash1.put(str,hash1.getOrDefault(str,0)+1);
+        }
+        int len=words[0].length(),m = words.length;
+        for(int i = 0;i < len;i++){
+            Map<String,Integer> hash2 = new HashMap<String,Integer>();
+            for(int left = i,right = i,count = 0;right + len<= s.length();right+=len){
+                //进窗口
+                String in = s.substring(right,right+len);
+                hash2.put(in,hash2.getOrDefault(in,0)+1);
+                if(hash2.get(in) <= hash1.getOrDefault(in,0)){
+                    count++;
+                }
+
+                //出窗口
+                if(right - left + 1 > len*m){
+                    String out = s.substring(left,left+len);
+                    if(hash2.get(out) <= hash1.getOrDefault(out,0)){
+                        count--;
+                    }
+                    hash2.put(out,hash2.get(out)-1);
+                    left+=len;
+                }
+                if(count == m){
+                    ret.add(left);
+                }
+            }
+        }
+        return ret;
+    }
+    
+}
+
+--------------------------------------------------------------------------------------------------------------
+给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。如果 s 中不存在涵盖 t 所有字符的子串，则返回空字符串 "" 。
+
+ 
+
+注意：
+
+对于 t 中重复字符，我们寻找的子字符串中该字符数量必须不少于 t 中该字符数量。
+如果 s 中存在这样的子串，我们保证它是唯一的答案。
+ 
+
+示例 1：
+
+输入：s = "ADOBECODEBANC", t = "ABC"
+输出："BANC"
+解释：最小覆盖子串 "BANC" 包含来自字符串 t 的 'A'、'B' 和 'C'。
+
+
+class Solution {
+    public String minWindow(String ss, String tt) {
+        char[] s = ss.toCharArray();
+        char[] t = tt.toCharArray();
+
+        int kinds = 0;
+
+        int[] hash1 = new int[128];
+        int[] hash2 = new int[128];
+        for(char ch : t){
+            if(hash1[ch]++ == 0){
+                kinds++;
+            }
+        }
+
+        int minlen = Integer.MAX_VALUE, begin = -1;
+
+        for(int left = 0,right = 0,count = 0;right < s.length;right++){
+            char in = s[right];
+
+            if(++hash2[in] == hash1[in]){
+                count++;
+            }
+
+            while(kinds == count){
+                if(right - left + 1 < minlen){
+                    begin = left;
+                    minlen = right - left + 1;
+                }
+
+                char out = s[left++];
+                if(hash2[out]-- == hash1[out]){
+                    count--;
+                }
+            }
+        }
+        if(begin == -1){ 
+            return new String();
+        }else {
+            return ss.substring(begin, begin + minlen);
+        }
+    }
+}
